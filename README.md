@@ -19,7 +19,7 @@ A lightweight Flask‑based web application for serving Postman collections for 
 
 - Serves static HTML/UI components (`static/`)  
 - Renders templates (`templates/`)  
-- Loads a Postman collection file (e.g. `collections/collections.json`)  
+- Loads a Postman collection file  
 - Allows users to view and test APIs via the UI  
 - Offers an easy way to deploy API testing endpoints with minimal overhead  
 
