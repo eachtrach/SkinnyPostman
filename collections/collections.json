@@ -1,26 +1,4 @@
 {
   "collections": [
-    {
-      "id": 1,
-      "name": "cd",
-      "requests": [
-        {
-          "id": 1,
-          "name": "get",
-          "url": "https://chartdriven.com/",
-          "method": "GET",
-          "headers": {},
-          "body": ""
-        },
-        {
-          "id": 2,
-          "name": "post",
-          "url": "https://chartdriven.com/",
-          "method": "POST",
-          "headers": {},
-          "body": ""
-        }
-      ]
-    }
   ]
 }
