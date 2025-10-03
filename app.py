@@ -186,5 +186,6 @@ def get_requests(cid):
         return jsonify({"error": "Collection not found"}), 404
     return jsonify(collection["requests"])
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
