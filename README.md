@@ -48,7 +48,7 @@ SkinnyPostman/
 ```
 
 - **app.py** — main Flask server script  
-- **collections.json** — the Postman collection file the app serves  
+- **collections.json** — the collection file the app serves  
 - **static/** — static assets (CSS, images)  
 - **templates/** — Jinja2 templates for UI rendering  
 
@@ -92,7 +92,7 @@ By default, it will start a local server (e.g. `http://127.0.0.1:5000/`). Open t
 
 From the UI, you should see the API endpoints defined in `collections.json` and be able to execute requests via the interface.
 
-You can modify or replace `collections.json` to point to your own Postman collection file.
+You can modify or replace `collections.json` collection file.
 
 ## Configuration
 
