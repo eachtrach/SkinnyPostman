@@ -85,6 +85,9 @@ From the UI, you should see the API endpoints defined in `collections.json` and 
 
 You can modify or replace `collections.json` collection file.
 
+OR (in Docker)
+docker build -t postman . ; docker run -it -p 5000:5000 postman
+
 
 ## Demo
 
