@@ -3,7 +3,7 @@ import requests, json, os
 
 app = Flask(__name__)
 
-DATA_FILE = "collections.json"
+DATA_FILE = "collections/collections.json"
 
 def load_data():
     if not os.path.exists(DATA_FILE):
