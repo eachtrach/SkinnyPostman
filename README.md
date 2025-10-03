@@ -11,7 +11,8 @@ A lightweight Flask‑based web application for serving Postman collections for 
 - [Installation](#installation)  
 - [Usage](#usage)  
 - [Configuration](#configuration)  
-- [Adding / Updating Collections](#adding-and-updating-collections)  
+- [Adding / Updating Collections](#adding-and-updating-collections)
+- [Demo](#demo) 
 - [Contributing](#contributing)  
 - [License](#license)  
 
@@ -114,6 +115,14 @@ To update or add an API collection:
 2. Ensure the structure is valid JSON and matches Postman’s collection schema.  
 3. Reload / restart the server (if already running).  
 4. Visit the UI and verify the new endpoints appear.
+
+## Demo
+
+
+
+https://github.com/user-attachments/assets/9d5b9423-9333-4df7-98b9-577416862ced
+
+
 
 ## Contributing
 
