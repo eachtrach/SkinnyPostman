@@ -1,4 +1,4 @@
-# SkinnyPostman
+# SkinnyPostman <img height="50" alt="logo" src="https://github.com/user-attachments/assets/a30712b1-bde9-4842-8ccf-8150e9192851" />
 
 A lightweight Flask‑based web application for serving Postman collections for API testing.
 
