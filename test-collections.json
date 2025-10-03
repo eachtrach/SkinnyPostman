@@ -1,0 +1,26 @@
+{
+  "collections": [
+    {
+      "id": 1,
+      "name": "Postman Test API",
+      "requests": [
+        {
+          "id": 1,
+          "name": "Get Example",
+          "url": "https://postman-echo.com/get",
+          "method": "GET",
+          "headers": {},
+          "body": ""
+        },
+        {
+          "id": 2,
+          "name": "Post Example",
+          "url": "https://postman-echo.com/post",
+          "method": "POST",
+          "headers": {},
+          "body": "{\"name\": \"John Doe\", \"email\": \"john.doe@example.com\", \"password\": \"password123\"}"
+        }
+      ]
+    }
+  ]
+}
