@@ -4,12 +4,78 @@ import requests, json, os
 app = Flask(__name__)
 
 DATA_FILE = "collections/collections.json"
+os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
+
+
+def convert_to_simple(json_data):
+    """
+    Detects if the JSON is a Postman v2.1 collection and converts it to
+    simplified 'collections' format. If already in simplified format, returns as-is.
+    """
+    # Check if it's already in simplified 'collections' format
+    if isinstance(json_data, dict) and "collections" in json_data:
+        return json_data  # Already simplified
+
+    # Otherwise, check if it's a Postman collection
+    if not isinstance(json_data, dict) or "item" not in json_data:
+        raise ValueError("Input is neither a simplified collection nor a Postman collection.")
+
+    collections = []
+    collection_id = 1
+
+    def flatten_items(items):
+        """Flatten nested Postman items into request dicts"""
+        requests = []
+        request_id = 1
+        for item in items:
+            if "request" in item:
+                req = item["request"]
+                headers = {h["key"]: h["value"] for h in req.get("header", [])}
+                body = ""
+                if "body" in req and "raw" in req["body"]:
+                    body = req["body"]["raw"]
+                url = ""
+                if isinstance(req.get("url"), dict):
+                    url = req["url"].get("raw", "")
+                requests.append({
+                    "id": request_id,
+                    "name": item.get("name", f"request_{request_id}"),
+                    "url": url,
+                    "method": req.get("method", "GET"),
+                    "headers": headers,
+                    "body": body
+                })
+                request_id += 1
+            elif "item" in item:  # Nested folder
+                nested_requests = flatten_items(item["item"])
+                for r in nested_requests:
+                    r["id"] = request_id
+                    request_id += 1
+                requests.extend(nested_requests)
+        return requests
+
+    collection_name = json_data.get("info", {}).get("name", f"collection_{collection_id}")
+    requests = flatten_items(json_data["item"])
+
+    collections.append({
+        "id": collection_id,
+        "name": collection_name,
+        "requests": requests
+    })
+
+    return {"collections": collections}
+
 
 def load_data():
     if not os.path.exists(DATA_FILE):
         return {"collections": []}
-    with open(DATA_FILE, "r") as f:
-        return json.load(f)
+    
+    
+    with open(DATA_FILE) as f:
+        data = json.load(f)
+
+    return data
+
 
 def save_data(data):
     with open(DATA_FILE, "w") as f:
@@ -18,6 +84,40 @@ def save_data(data):
 @app.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
+
+
+@app.route("/collections/upload", methods=["POST"])
+def upload_collection():
+    """
+    Upload a Postman collection JSON and convert it automatically if needed.
+    """
+    if "file" not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    file = request.files["file"]
+    if not file.filename.endswith(".json"):
+        return jsonify({"error": "File must be JSON"}), 400
+
+    try:
+        postman_data = json.load(file)
+        # Convert automatically if needed
+        simple_data = convert_to_simple(postman_data)
+
+        # Load existing data
+        data = load_data()
+
+        # Merge uploaded collection(s)
+        next_cid = max([c["id"] for c in data["collections"]], default=0) + 1
+        for coll in simple_data["collections"]:
+            coll["id"] = next_cid
+            next_cid += 1
+            data["collections"].append(coll)
+
+        save_data(data)
+        return jsonify({"message": "Collection uploaded successfully", "collections": simple_data["collections"]})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/send", methods=["POST"])
 def send_request():

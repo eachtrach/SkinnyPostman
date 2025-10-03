@@ -48,6 +48,37 @@
     <h3>Response</h3>
     <pre id="responseBox" class="bg-light p-3 border rounded" style="max-height:400px; overflow:auto;"></pre>
   </div>
+
+<form id="uploadForm" enctype="multipart/form-data">
+  <input type="file" name="file" accept=".json" required />
+  <br><br>
+  <button type="submit">Upload Collection</button>
+</form>
+
+<script>
+document.getElementById("uploadForm").addEventListener("submit", function(e) {
+  e.preventDefault(); // prevent default form submission
+
+  const formData = new FormData(this);
+
+  fetch("/collections/upload", {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.error) {
+      alert("Error: " + data.error);
+    } else {
+      alert("Upload successful!");
+      location.reload(); // refresh the page after upload
+    }
+  })
+  .catch(err => alert("Upload failed: " + err));
+});
+</script>
+
+
 </div>
 
 <script>
