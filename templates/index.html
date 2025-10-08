@@ -1,0 +1,178 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Skinny Postman with Collections</title>
+  <link rel="stylesheet" href="static/bootstrap.min.css">
+</head>
+<body class="p-4">
+<div class="row">
+
+  <div class="col-3 border-end">
+    <h4>Collections</h4>
+    <ul id="collectionsList" class="list-group mb-3"></ul>
+    <button class="btn btn-sm btn-success" onclick="newCollection()">+ New Collection</button>
+  </div>
+
+  <div class="col-9">
+    <h1 class="mb-4 d-flex justify-content-between align-items-center">
+      <span>Skinny Postman</span>
+      <img src="static/logo.png" alt="Logo" style="height: 70px;">
+    </h1>
+
+    <form id="reqForm" class="mb-3">
+      <div class="mb-3">
+        <label class="form-label">URL</label>
+        <input type="text" class="form-control" id="url" name="url">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Method</label>
+        <select class="form-select" id="method" name="method">
+          <option>GET</option>
+          <option>POST</option>
+          <option>PUT</option>
+          <option>PATCH</option>
+          <option>DELETE</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Body</label>
+        <textarea class="form-control" id="body" name="body" rows="4"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Send</button>
+      <button type="button" class="btn btn-secondary" onclick="saveRequest()">💾 Save</button>
+    </form>
+
+    <h3>Response</h3>
+    <pre id="responseBox" class="bg-light p-3 border rounded" style="max-height:400px; overflow:auto;"></pre>
+  </div>
+
+<form id="uploadForm" enctype="multipart/form-data">
+  <input type="file" name="file" accept=".json" required />
+  <br><br>
+  <button type="submit">Upload Collection</button>
+</form>
+
+<script>
+document.getElementById("uploadForm").addEventListener("submit", function(e) {
+  e.preventDefault(); // prevent default form submission
+
+  const formData = new FormData(this);
+
+  fetch("/collections/upload", {
+    method: "POST",
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.error) {
+      alert("Error: " + data.error);
+    } else {
+      alert("Upload successful!");
+      location.reload(); // refresh the page after upload
+    }
+  })
+  .catch(err => alert("Upload failed: " + err));
+});
+</script>
+
+
+</div>
+
+<script>
+let currentCollection = null;
+
+async function loadCollections() {
+  let res = await fetch("/collections");
+  let collections = await res.json();
+  let list = document.getElementById("collectionsList");
+  list.innerHTML = "";
+
+  collections.forEach(c => {
+    let li = document.createElement("li");
+    li.className = "list-group-item";
+    li.id = `col-${c.id}`;
+    li.textContent = c.name;
+    li.onclick = () => loadRequests(c.id);
+    list.appendChild(li);
+  });
+}
+
+async function newCollection() {
+  let name = prompt("Collection name?");
+  if (!name) return;
+  await fetch("/collections", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name})
+  });
+  loadCollections();
+}
+
+async function loadRequests(cid) {
+  currentCollection = cid;
+  let res = await fetch(`/collections/${cid}/requests`);
+  let requests = await res.json();
+
+  let parent = document.getElementById(`col-${cid}-requests`);
+  if (!parent) {
+    parent = document.createElement("ul");
+    parent.id = `col-${cid}-requests`;
+    parent.className = "list-group";
+    document.getElementById(`col-${cid}`).appendChild(parent);
+  }
+
+  parent.innerHTML = "";
+
+  requests.forEach(r => {
+    let li = document.createElement("li");
+    li.className = "list-group-item ps-4";
+    li.textContent = "↳ " + r.name;
+    li.onclick = () => {
+      document.getElementById("url").value = r.url;
+      document.getElementById("method").value = r.method;
+      document.getElementById("body").value = r.body;
+    };
+    parent.appendChild(li);
+  });
+}
+
+async function saveRequest() {
+  if (!currentCollection) {
+    alert("Pick a collection first!");
+    return;
+  }
+  let name = prompt("Request name?");
+  if (!name) return;
+
+  let req = {
+    name,
+    url: document.getElementById("url").value,
+    method: document.getElementById("method").value,
+    headers: {},
+    body: document.getElementById("body").value
+  };
+
+  await fetch(`/collections/${currentCollection}/requests`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(req)
+  });
+
+  loadCollections();
+}
+
+document.getElementById("reqForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  let formData = new FormData(e.target);
+  let response = await fetch("/send", {method:"POST", body:formData});
+  let data = await response.json();
+  document.getElementById("responseBox").textContent = JSON.stringify(data, null, 2);
+});
+
+loadCollections();
+</script>
+</body>
+</html>

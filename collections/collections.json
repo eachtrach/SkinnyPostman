@@ -1,0 +1,18 @@
+{
+  "collections": [
+    {
+      "id": 1,
+      "name": "xxxx",
+      "requests": [
+        {
+          "id": 1,
+          "name": "get",
+          "url": "https://postman-echo.com/get",
+          "method": "GET",
+          "headers": {},
+          "body": ""
+        }
+      ]
+    }
+  ]
+}
